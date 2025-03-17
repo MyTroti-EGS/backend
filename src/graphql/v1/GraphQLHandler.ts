@@ -1,0 +1,53 @@
+import { GraphQLList, GraphQLNonNull, GraphQLObjectType, GraphQLSchema, GraphQLString } from 'graphql';
+import { createHandler } from 'graphql-http/lib/use/express';
+
+import { UserInfoGQL } from './UserInfoGQL';
+import { ScooterInfoGQL } from './ScooterInfoGQL';
+import { ChargingStationGQL } from './ChargingStationGQL';
+
+export class GraphQLHandler_V1 {
+    public static globalInput = {
+        token: {
+            type: GraphQLString,
+        },
+    }
+
+    public static schema = new GraphQLSchema({
+        query: new GraphQLObjectType({
+            name: 'Query',
+            fields: {
+                userInfo: {
+                    type: UserInfoGQL.userInfoType,
+                    args: {
+                        jwt: { type: GraphQLString },
+                    },
+                    resolve: async (_, args) => {
+                        return await UserInfoGQL.getUserInfo(args.jwt);
+                    }
+                },
+                scooters: {
+                    type: new GraphQLList(ScooterInfoGQL.scooterInfoType),
+                    args: {
+                        id: { type: GraphQLString },
+                    },
+                    resolve: (_, args) => {
+                        return ScooterInfoGQL.getScooterInfo(args.id);
+                    },
+                },
+                chargingStations: {
+                    type: new GraphQLList(ChargingStationGQL.chargingStationType),
+                    args: {
+                        id: { type: GraphQLString },
+                    },
+                    resolve: (_, args) => {
+                        return ChargingStationGQL.getChargingStation(args.id);
+                    },
+                },
+            },
+        }),
+    });
+
+    public static handler = createHandler({
+        schema: GraphQLHandler_V1.schema,
+    });
+}
