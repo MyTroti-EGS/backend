@@ -5,10 +5,12 @@ services:
       - ${PORT}:${PORT}
     depends_on:
       - postgres
-    environment:
-      - DEBUG=${DEBUG:-false}
-      - PORT=${PORT}
-      - DATABASE_URL=${DATABASE_URL}
+    # environment:
+    #   - DEBUG=${DEBUG:-false}
+    #   - PORT=${PORT}
+    #   - DATABASE_URL=${DATABASE_URL}
+    env_file:
+      - .env
 
   postgres:
     image: postgres:alpine
