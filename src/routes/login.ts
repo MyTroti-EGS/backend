@@ -41,7 +41,7 @@ export default class LoginRoute extends Route {
             return res.status(500).send('Identity provider API key is not set');
         }
 
-        const redirect_uri = process.env.REDIRECT_URI;
+        const redirect_uri = process.env.BASE_URL + '/auth/callback';
         if (!redirect_uri) {
             return res.status(500).send('Redirect URI is not set');
         }

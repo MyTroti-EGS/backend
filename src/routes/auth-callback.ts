@@ -25,14 +25,28 @@ export default class AuthCallbackRoute extends Route {
 
         const info: any = verify(token as string, idp_api_key);
 
-        const user = await User.create({
-            name: info['name'],
-            email: info['email'],
-            idp_id: info['id'],
+        const [user, _] = await User.findOrCreate({
+            where: {
+                idp_id: info.id,
+            },
+            defaults: {
+                name: info.name,
+                idp_id: info.id,
+                email: info.email,
+            },
         });
 
         const jwt = user.generateJWT();
+        const frontend_redirect_uri = process.env.FRONTEND_REDIRECT_URI;
+        if (!frontend_redirect_uri) {
+            return res.status(500).send({
+                error: 'Internal Server Error',
+                message: 'Frontend redirect URI is not set',
+            });
+        }
 
-        return res.send(jwt);
+        return res.redirect(
+            `${frontend_redirect_uri}?token=${jwt}`
+        );
     }
 }
