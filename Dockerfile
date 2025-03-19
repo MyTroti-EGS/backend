@@ -19,5 +19,8 @@ RUN npm install --only=production
 # Copy the built files from the previous stage
 COPY --from=build /app/dist ./dist
 
+# Copy the api directory
+COPY ./api ./api
+
 # Run the app
 CMD ["node", "dist/index.js"]
