@@ -1,7 +1,7 @@
 import { Association, CreationOptional, DataTypes, HasManyAddAssociationMixin, HasManyAddAssociationsMixin, HasManyCountAssociationsMixin, HasManyCreateAssociationMixin, HasManyGetAssociationsMixin, HasManyHasAssociationMixin, HasManyHasAssociationsMixin, HasManyRemoveAssociationMixin, HasManyRemoveAssociationsMixin, HasManySetAssociationsMixin, InferAttributes, InferCreationAttributes, Model, NonAttribute } from "sequelize";
 import { sequelize } from "../lib/Database";
 import Invoice from "./Invoice";
-import { sign } from "jsonwebtoken";
+import { sign, SignOptions } from "jsonwebtoken";
 
 const JWT_SECRET = process.env.JWT_SECRET ?? "Default_Secret_Please_Change_In_.env";
 const JWT_EXPIRES_IN = process.env.JWT_EXPIRES_IN ?? "1h";
@@ -42,8 +42,8 @@ class User extends Model<InferAttributes<User>, InferCreationAttributes<User>> {
 
     public generateJWT(): string {
         return sign(this.toJSON(), JWT_SECRET, {
-            expiresIn: "20s",
-        });
+            expiresIn: JWT_EXPIRES_IN,
+        } as SignOptions);
     }
 }
 
