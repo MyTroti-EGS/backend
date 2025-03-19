@@ -15,12 +15,18 @@ export default class AuthCallbackRoute extends Route {
     async get(req: Request, res: Response) {
         const { token } = req.query;
         if (!token) {
-            return res.status(400).send('Token is required');
+            return res.status(400).send({
+                error: 'Bad Request',
+                message: 'Token is required',
+            });
         }
 
         const idp_api_key = process.env.IDENTITY_PROVIDER_API_KEY;
         if (!idp_api_key) {
-            return res.status(500).send('Identity provider API key is not set');
+            return res.status(500).send({
+                error: 'Internal Server Error',
+                message: 'Identity provider API key is not set',
+            });
         }
 
         const info: any = verify(token as string, idp_api_key);

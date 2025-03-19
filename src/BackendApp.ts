@@ -10,6 +10,8 @@ import { sequelize } from './lib/Database';
 import { GraphQLHandler_V1 } from './graphql/v1/GraphQLHandler';
 import Invoice from './models/Invoice';
 import User from './models/User';
+import SwaggerUI from 'swagger-ui-express';
+import { readFileSync } from 'fs';
 
 export default class BackendApp {
     private app: express.Application;
@@ -27,6 +29,15 @@ export default class BackendApp {
 
         if (['true', '1'].includes(process.env.HTTP_LOGGING?.toLocaleLowerCase() || ''))
             this.app.use((req, res, next) => ExpressLogger(this, req, res, next));
+
+        this.app.use('/docs/rest', SwaggerUI.serve, SwaggerUI.setup(
+            JSON.parse(
+                readFileSync(
+                    join(__dirname, '..', 'api', 'swagger.json'),
+                    'utf-8'
+                )
+            )
+        ));
 
         this.init().then(() => this.logger.info('Backend initialized'));
     }

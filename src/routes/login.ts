@@ -33,17 +33,26 @@ export default class LoginRoute extends Route {
     async get(req: Request, res: Response) {
         const idp_url = process.env.IDENTITY_PROVIDER_URL;
         if (!idp_url) {
-            return res.status(500).send('Identity provider URL is not set');
+            return res.status(500).send({
+                error: "Internal Server Error",
+                message: "Identity provider URL is not set",
+            });
         }
-
+        
         const idp_api_key = process.env.IDENTITY_PROVIDER_API_KEY;
         if (!idp_api_key) {
-            return res.status(500).send('Identity provider API key is not set');
+            return res.status(500).send({
+                error: "Internal Server Error",
+                message: "Identity provider API key is not set",
+            });
         }
 
         const redirect_uri = process.env.BASE_URL + '/auth/callback';
-        if (!redirect_uri) {
-            return res.status(500).send('Redirect URI is not set');
+        if (!process.env.BASE_URL) {
+            return res.status(500).send({
+                error: "Internal Server Error",
+                message: "Redirect URI is not set",
+            });
         }
 
         return res.send(loginForm(idp_url, idp_api_key, redirect_uri));

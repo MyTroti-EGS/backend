@@ -1,0 +1,73 @@
+openapi: 3.0.0
+info:
+  title: MyTroti Backend API
+  version: 1.0.0
+
+servers:
+  - url: http://localhost:5000/
+
+components:
+  schemas:
+    Error:
+      type: object
+      properties:
+        error:
+          type: string
+        message:
+          type: string
+
+paths:
+  /login:
+    post:
+      summary: Authenticate user
+      description: Redirect the user to the Identity Provider login page
+      tags:
+        - Authentication
+      responses:
+        '200':
+          description: Form that redirects to the Identity Provider login page
+          content:
+            text/html:
+              schema:
+                type: string
+
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /auth/callback:
+    post:
+      summary: Redirect user to the requested URL
+      description: |
+        Redirects to the redirect URL defined on the environment
+        variable with the token as a query parameter
+      tags:
+        - Authentication
+      parameters:
+        - name: token
+          in: query
+          required: true
+          description: The token received from the Identity Provider
+          schema:
+            type: string
+
+      responses:
+        '302':
+          description: Login successful, redirecting to the requested redirect URL
+
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
