@@ -33,7 +33,13 @@ export class ChargingStationGQL {
             headers: {
                 'X-API-Key': POI_API_KEY,
             },
+        }).catch((error) => {
+            throw new Error(`Failed to fetch charging station: Server is down`);
         });
+
+        if (!response.ok) {
+            throw new Error(`Failed to fetch charging station: ${response.statusText}`);
+        }
 
         let data: Point[];
         if (id) {
