@@ -22,6 +22,16 @@ type ScooterInfo = {
 }
 
 export class ScooterInfoGQL {
+    public static scooterStatusEnum = new GraphQLEnumType({
+        name: 'ScooterStatus',
+        values: {
+            AVAILABLE: { value: ScooterStatus.AVAILABLE },
+            OCCUPIED: { value: ScooterStatus.OCCUPIED },
+            MAINTENANCE: { value: ScooterStatus.MAINTENANCE },
+            CHARGING: { value: ScooterStatus.CHARGING },
+        }
+    });
+
     public static scooterInfoType = new GraphQLObjectType({
         name: 'ScooterInfo',
         fields: {
@@ -31,15 +41,7 @@ export class ScooterInfoGQL {
             mac_address: { type: new GraphQLNonNull(GraphQLString) },
             serial_number: { type: new GraphQLNonNull(GraphQLString) },
             status: { 
-                type: new GraphQLEnumType({
-                    name: 'ScooterStatus',
-                    values: {
-                        AVAILABLE: { value: ScooterStatus.AVAILABLE },
-                        OCCUPIED: { value: ScooterStatus.OCCUPIED },
-                        MAINTENANCE: { value: ScooterStatus.MAINTENANCE },
-                        CHARGING: { value: ScooterStatus.CHARGING },
-                    }
-                }),
+                type: new GraphQLNonNull(ScooterInfoGQL.scooterStatusEnum),
             },
         },
     });
@@ -78,5 +80,33 @@ export class ScooterInfoGQL {
                 status: scooter.status,
             };
         });
+    }
+
+    public static async updateScooter(id: string, status: ScooterStatus) {
+        console.log(`Updating scooter ${id} to status ${status}`);
+        if (!SCOOTER_MONITOR_URL || !SCOOTER_MONITOR_API_KEY) {
+            throw new Error('Missing scooter monitor URL or API key');
+        }
+
+        const response = await fetch(`${SCOOTER_MONITOR_URL}/v1/scooters/${id}/status`, {
+            method: 'PATCH',
+            headers: {
+                "x-api-key": SCOOTER_MONITOR_API_KEY,
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ status }),
+        }).catch((error) => {
+            throw new Error(`Failed to update scooter info: Server is down`);
+        });
+
+        if (!response.ok) {
+            throw new Error(`Failed to update scooter info: ${response.statusText}`);
+        }
+        
+        let scooterInfo = await ScooterInfoGQL.getScooterInfo(id);
+        if (scooterInfo.length === 0) {    
+            throw new Error(`Scooter ${id} not found`);
+        }
+        return scooterInfo[0];
     }
 }

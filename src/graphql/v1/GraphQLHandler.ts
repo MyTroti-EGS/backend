@@ -42,6 +42,21 @@ export class GraphQLHandler_V1 {
                 },
             },
         }),
+        mutation: new GraphQLObjectType({
+            name: 'Mutation',
+            fields: {
+                scooter: {
+                    type: ScooterInfoGQL.scooterInfoType,
+                    args: {
+                        id: { type: new GraphQLNonNull(GraphQLString) },
+                        status: { type: new GraphQLNonNull(ScooterInfoGQL.scooterStatusEnum) },
+                    },
+                    resolve: (_, args) => {
+                        return ScooterInfoGQL.updateScooter(args.id, args.status);
+                    },
+                }
+            },
+        }),
     });
 
     public static handler = createHandler({
