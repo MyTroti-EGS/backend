@@ -18,11 +18,8 @@ export class GraphQLHandler_V1 {
             fields: {
                 userInfo: {
                     type: UserInfoGQL.userInfoType,
-                    args: {
-                        jwt: { type: GraphQLString },
-                    },
-                    resolve: async (_, args) => {
-                        return await UserInfoGQL.getUserInfo(args.jwt);
+                    resolve: async (_, __, context) => {
+                        return await UserInfoGQL.getUserInfo(context.token);
                     }
                 },
                 scooters: {
@@ -49,5 +46,14 @@ export class GraphQLHandler_V1 {
 
     public static handler = createHandler({
         schema: GraphQLHandler_V1.schema,
+        context: (req) => {
+            let token = (req.headers as any)['authorization'] || "";
+            if (token && token.startsWith('Bearer ')) {
+                token = token.slice(7, token.length);
+            }
+            return {
+                token,
+            };
+        }
     });
 }
