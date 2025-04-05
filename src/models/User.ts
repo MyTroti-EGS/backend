@@ -2,10 +2,10 @@ import { Association, CreationOptional, DataTypes, HasManyAddAssociationMixin, H
 import { sequelize } from "../lib/Database";
 import Invoice from "./Invoice";
 import { sign, SignOptions } from "jsonwebtoken";
+import Trip from "./Trip";
 
 const JWT_SECRET = process.env.JWT_SECRET ?? "Default_Secret_Please_Change_In_.env";
 const JWT_EXPIRES_IN = process.env.JWT_EXPIRES_IN ?? "1h";
-// TODO: Use JWT_EXPIRES_IN in generateJWT
 
 class User extends Model<InferAttributes<User>, InferCreationAttributes<User>> {
     declare id: CreationOptional<string>;
@@ -27,10 +27,23 @@ class User extends Model<InferAttributes<User>, InferCreationAttributes<User>> {
     declare countInvoices: HasManyCountAssociationsMixin;
     declare createInvoice: HasManyCreateAssociationMixin<Invoice, 'userId'>;
 
+    declare getTrips: HasManyGetAssociationsMixin<Trip>;
+    declare addTrip: HasManyAddAssociationMixin<Trip, string>;
+    declare addTrips: HasManyAddAssociationsMixin<Trip, string>;
+    declare setTrips: HasManySetAssociationsMixin<Trip, string>;
+    declare removeTrip: HasManyRemoveAssociationMixin<Trip, string>;
+    declare removeTrips: HasManyRemoveAssociationsMixin<Trip, string>;
+    declare hasTrip: HasManyHasAssociationMixin<Trip, string>;
+    declare hasTrips: HasManyHasAssociationsMixin<Trip, string>;
+    declare countTrips: HasManyCountAssociationsMixin;
+    declare createTrip: HasManyCreateAssociationMixin<Trip, 'userId'>;
+
     declare invoices?: NonAttribute<Invoice[]>;
+    declare trips?: NonAttribute<Trip[]>;
 
     declare static associations: {
         invoices: Association<User, Invoice>;
+        trips: Association<User, Trip>;
     }
 
     public static defineAssociations(): void {
@@ -38,6 +51,20 @@ class User extends Model<InferAttributes<User>, InferCreationAttributes<User>> {
             as: 'invoices',
             foreignKey: 'userId'
         });
+        User.hasMany(Trip, {
+            as: 'trips',
+            foreignKey: 'userId'
+        });
+    }
+
+    public async getActiveTrip(): Promise<Trip | null> {
+        const trips = await this.getTrips({
+            where: {
+                endedAt: null
+            },
+            limit: 1
+        });
+        return trips.length > 0 ? trips[0] : null;
     }
 
     public generateJWT(): string {

@@ -12,6 +12,7 @@ import Invoice from './models/Invoice';
 import User from './models/User';
 import SwaggerUI from 'swagger-ui-express';
 import { readFileSync } from 'fs';
+import Trip from './models/Trip';
 
 export default class BackendApp {
     private app: express.Application;
@@ -59,7 +60,7 @@ export default class BackendApp {
             process.exit(1);
         }
 
-        const classes = [Invoice, User];
+        const classes = [Invoice, User, Trip];
         for (const model of classes) {
             const recreate = process.env.FORCE_DB_RECREATION === 'true';
             await model.sync({ force: recreate });

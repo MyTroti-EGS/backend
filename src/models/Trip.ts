@@ -2,14 +2,11 @@ import { CreationOptional, DataTypes, ForeignKey, InferAttributes, InferCreation
 import { sequelize } from "../lib/Database";
 import User from "./User";
 
-class Invoice extends Model<InferAttributes<Invoice>, InferCreationAttributes<Invoice>> {
+class Trip extends Model<InferAttributes<Trip>, InferCreationAttributes<Trip>> {
     declare id: CreationOptional<string>;
-    declare amount: number;
-    declare paid: CreationOptional<boolean>;
-    declare paidAt: CreationOptional<Date> | null;
-    declare items: any;
-    declare currency: string;
-    declare paymentId: CreationOptional<string> | null;
+    declare startedAt: Date;
+    declare endedAt: CreationOptional<Date> | null;
+    declare scooterId: string;
 
     declare createdAt: CreationOptional<Date>;
     declare updatedAt: CreationOptional<Date>;
@@ -17,21 +14,15 @@ class Invoice extends Model<InferAttributes<Invoice>, InferCreationAttributes<In
     declare userId: ForeignKey<User['id']>;
     declare user?: NonAttribute<User>;
 
-    public async markAsPaid(): Promise<void> {
-        this.paid = true;
-        this.paidAt = new Date();
-        await this.save();
-    }
-
     public static defineAssociations(): void {
-        Invoice.belongsTo(User, {
+        Trip.belongsTo(User, {
             as: 'user',
             foreignKey: 'userId'
         });
     }
 }
 
-Invoice.init(
+Trip.init(
     {
         id: {
             type: DataTypes.UUID,
@@ -42,39 +33,26 @@ Invoice.init(
             type: DataTypes.UUID,
             allowNull: false
         },
-        amount: {
-            type: new DataTypes.DECIMAL(10, 2),
+        startedAt: {
+            type: DataTypes.DATE,
             allowNull: false
         },
-        paid: {
-            type: DataTypes.BOOLEAN,
-            allowNull: false,
-            defaultValue: false
-        },
-        paidAt: {
+        endedAt: {
             type: DataTypes.DATE,
             allowNull: true
         },
-        items: {
-            type: DataTypes.JSON,
-            allowNull: false
-        },
-        currency: {
+        scooterId: {
             type: DataTypes.STRING,
             allowNull: false
-        },
-        paymentId: {
-            type: DataTypes.STRING,
-            allowNull: true
         },
         createdAt: DataTypes.DATE,
         updatedAt: DataTypes.DATE,
     },
     {
         sequelize,
-        modelName: 'Invoice',
-        tableName: 'invoices',
+        modelName: 'Trip',
+        tableName: 'trips',
     }
 );
 
-export default Invoice;
+export default Trip;
