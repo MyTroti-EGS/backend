@@ -17,7 +17,6 @@ type UserToReturn = {
         paid: boolean;
         paidAt: string | null;
         currency: string;
-        paymentId: string | null;
         createdAt: string;
     }>;
 };
@@ -95,7 +94,6 @@ export class UserInfoGQL {
                 paid: invoice.paid,
                 paidAt: invoice.paidAt ? invoice.paidAt.toISOString() : null,
                 currency: invoice.currency,
-                paymentId: invoice.paymentId,
                 createdAt: invoice.createdAt.toISOString(),
             })),
         }
