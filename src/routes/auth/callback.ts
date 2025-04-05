@@ -1,8 +1,8 @@
 import { Application, Request, Response } from "express";
-import BackendApp from "../BackendApp";
-import Route from "../lib/Route";
+import BackendApp from "../../BackendApp";
+import Route from "../../lib/Route";
 import { verify } from "jsonwebtoken";
-import User from "../models/User";
+import User from "../../models/User";
 
 export default class AuthCallbackRoute extends Route {
     constructor(manager: BackendApp, app: Application) {
