@@ -122,7 +122,7 @@ export default class TripEndRoute extends Route {
             body: JSON.stringify({
                 amount: tripCost,
                 currency: 'EUR',
-                metadata: { items: invoice.items },
+                payment_data: { items: invoice.items },
                 redirect_url: `${BASE_URL}/v1/payments/paid?invoiceId=${invoice.id}`,
             }),
         });
