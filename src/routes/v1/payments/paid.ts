@@ -3,6 +3,23 @@ import BackendApp from "../../../BackendApp";
 import Route from "../../../lib/Route";
 import Invoice from "../../../models/Invoice";
 
+const paymentCompleteForm = (frontend_redirect_uri: string) => `
+<html>
+    <head>
+        <title>MyTroti</title>
+        <script>
+            window.onload = function() {
+                window.location.href = "${frontend_redirect_uri}";
+            };
+        </script>
+    </head>
+    <body>
+        <p>Payment completed successfully. Redirecting to application...</p>
+        <p>If you are not redirected automatically within 5 seconds, click <a href="${frontend_redirect_uri}">here</a>.</p>
+    </body>
+</html>
+`;
+
 export default class PaymentCompleteRoute extends Route {
     constructor(manager: BackendApp, app: Application) {
         super(manager, app, {
@@ -32,6 +49,6 @@ export default class PaymentCompleteRoute extends Route {
             });
         }
 
-        return res.redirect(frontend_redirect_uri);
+        return res.send(paymentCompleteForm(frontend_redirect_uri));
     }
 }
