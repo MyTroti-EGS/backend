@@ -23,8 +23,6 @@ export default class PaymentCompleteRoute extends Route {
         }
 
         await invoice.markAsPaid();
-        // TODO: Redirect to the application
-        //return res.status(200).json({ message: 'Invoice marked as paid, you can close this window and return to the application' });
 
         const frontend_redirect_uri = process.env.FRONTEND_PAYMENT_REDIRECT_URI;
         if (!frontend_redirect_uri) {
@@ -34,8 +32,6 @@ export default class PaymentCompleteRoute extends Route {
             });
         }
 
-        return res.redirect(
-            `${frontend_redirect_uri}`
-        );
+        return res.redirect(frontend_redirect_uri);
     }
 }
