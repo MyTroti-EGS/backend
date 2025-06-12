@@ -4,7 +4,11 @@ info:
   version: 1.0.0
 
 servers:
-  - url: http://localhost:5000/
+  - url: http://localhost:5000{basePath}
+    variables:
+      basePath:
+        default: ""
+        description: Base path for the API (set via BASE_PATH environment variable)
 
 components:
   schemas:
@@ -16,9 +20,18 @@ components:
         message:
           type: string
 
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
 paths:
-  /login:
-    post:
+  #
+  # Authentication
+  #
+  /v1/login:
+    get:
       summary: Authenticate user
       description: Redirect the user to the Identity Provider login page
       tags:
@@ -38,8 +51,8 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error'
 
-  /auth/callback:
-    post:
+  /v1/auth/callback:
+    get:
       summary: Redirect user to the requested URL
       description: |
         Redirects to the redirect URL defined on the environment
@@ -60,6 +73,239 @@ paths:
 
         '400':
           description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  #
+  # Payment
+  #
+  /v1/pay:
+    get:
+      summary: Process payment
+      description: Endpoint to process user payments
+      tags:
+        - Payment
+      parameters:
+        - name: id
+          in: query
+          required: true
+          description: The ID of the payment to process
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Form that redirects to the Payments page
+          content:
+            text/html:
+              schema:
+                type: string
+
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /v1/payments/paid:
+    get:
+      summary: Mark payment as paid
+      description: Marks the specified invoice as paid and redirects the user to the app
+      tags:
+        - Payment
+      parameters:
+        - name: invoiceId
+          in: query
+          required: true
+          description: The ID of the invoice to mark as paid
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Form that redirects to the Payments page
+          content:
+            text/html:
+              schema:
+                type: string
+
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+
+        '404':
+          description: Invoice not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  #
+  # Trip
+  #
+  /v1/trip:
+    get:
+      summary: Get trip status
+      description: Returns the status of the trip (if the user is on a trip)
+      tags:
+        - Trip
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Trip status
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  state:
+                    type: string
+                    enum: [TRIP, NO_TRIP]
+                  trip:
+                    type: object
+                    nullable: true
+                    properties:
+                      id:
+                        type: string
+                      startDate:
+                        type: string
+                        format: date-time
+                      scooterId:
+                        type: string
+                    description: "Trip details if state is TRIP, null otherwise"
+
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /v1/trip/start:
+    post:
+      summary: Starts a trip
+      description: Starts a new trip for the user
+      tags:
+        - Trip
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                scooterId:
+                  type: string
+                  description: The ID of the scooter to start the trip with
+
+      responses:
+        '200':
+          description: Trip status
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  scooterId:
+                    type: string
+                  message:
+                    type: string
+
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+        '404':
+          description: Scooter not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /v1/trip/end:
+    post:
+      summary: Ends a trip
+      description: Ends the current trip for the user
+      tags:
+        - Trip
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Trip status
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  scooterId:
+                    type: string
+                  message:
+                    type: string
+                  tripId:
+                    type: string
+                  tripCost:
+                    type: number
+                    format: float
+                  invoiceId:
+                    type: string
+
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+        '401':
+          description: Unauthorized
           content:
             application/json:
               schema:
