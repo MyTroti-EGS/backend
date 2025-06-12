@@ -21,7 +21,11 @@ export default class BackendApp {
 
     public logger = Logger.createSubLogger('app');
 
+    public basePath: string;
+
     constructor() {
+        this.basePath = process.env.BASE_PATH || '';
+        
         this.app = express();
         this.app.use(cors());
         this.app.use(cookieParser());
@@ -31,7 +35,7 @@ export default class BackendApp {
         if (['true', '1'].includes(process.env.HTTP_LOGGING?.toLocaleLowerCase() || ''))
             this.app.use((req, res, next) => ExpressLogger(this, req, res, next));
 
-        this.app.use('/docs/rest', SwaggerUI.serve, SwaggerUI.setup(
+        this.app.use(`${this.basePath}/docs/rest`, SwaggerUI.serve, SwaggerUI.setup(
             JSON.parse(
                 readFileSync(
                     join(__dirname, '..', 'api', 'swagger.json'),
@@ -96,7 +100,7 @@ export default class BackendApp {
         }
 
         routesLogger.info('Loading GraphQL handler');
-        this.app.use('/graphql/v1', GraphQLHandler_V1.handler);
+        this.app.use(`${this.basePath}/graphql/v1`, GraphQLHandler_V1.handler);
     }
 
     listen(port: number) {

@@ -15,6 +15,17 @@ For Docker:
 
 ## Running the code
 
+### Environment Variables
+
+The application uses several environment variables for configuration. Copy `.env.example` to `.env` and adjust the values as needed.
+
+Key variables include:
+
+- `BASE_PATH`: Optional base path for all API routes (e.g., `/api` would make routes available at `/api/v1/...`)
+- `PORT`: Port number for the server (default: 5000)
+- `DATABASE_URL`: PostgreSQL connection string
+- `BASE_URL`: Base URL for the application (used for redirects)
+
 ### Production
 
 1. Clone the repository

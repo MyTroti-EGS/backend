@@ -30,7 +30,7 @@ export default class Route implements RouteWithMethods {
         this.app = app;
 
         this.name = options.name;
-        this.path = options.path;
+        this.path = manager.basePath + options.path;
 
         this.registerRoutes();
     }
