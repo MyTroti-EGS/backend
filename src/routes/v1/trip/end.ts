@@ -145,9 +145,7 @@ export default class TripEndRoute extends Route {
             tripId: trip.id,
             scooterId: trip.scooterId,
             tripCost,
-            paymentUrl: paymentData.url,
             invoiceId: invoice.id,
-            paymentId: paymentData.id,
         });
     }
 }
