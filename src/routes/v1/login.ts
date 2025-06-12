@@ -1,6 +1,6 @@
 import { Application, Request, Response } from "express";
-import BackendApp from "../BackendApp";
-import Route from "../lib/Route";
+import BackendApp from "../../BackendApp";
+import Route from "../../lib/Route";
 
 const loginForm = (idp_url: string, idp_api_key: string, redirect_uri: string) => `
 <html>
@@ -26,7 +26,7 @@ export default class LoginRoute extends Route {
     constructor(manager: BackendApp, app: Application) {
         super(manager, app, {
             name: 'Login',
-            path: '/login',
+            path: '/v1/login',
         });
     }
 
@@ -47,7 +47,7 @@ export default class LoginRoute extends Route {
             });
         }
 
-        const redirect_uri = process.env.BASE_URL + '/auth/callback';
+        const redirect_uri = process.env.BASE_URL + '/v1/auth/callback';
         if (!process.env.BASE_URL) {
             return res.status(500).send({
                 error: "Internal Server Error",

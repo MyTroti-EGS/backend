@@ -1,7 +1,7 @@
 import { Application, Request, Response } from "express";
-import BackendApp from "../../BackendApp";
-import Route from "../../lib/Route";
-import Invoice from "../../models/Invoice";
+import BackendApp from "../../../BackendApp";
+import Route from "../../../lib/Route";
+import Invoice from "../../../models/Invoice";
 
 const paymentForm = (payments_url: string, payments_api_key: string, payment_id: string) => `
 <html>
@@ -26,7 +26,7 @@ export default class PaymentRoute extends Route {
     constructor(manager: BackendApp, app: Application) {
         super(manager, app, {
             name: 'InvoicePayment',
-            path: '/pay/:id',
+            path: '/v1/pay/:id',
         });
     }
 
